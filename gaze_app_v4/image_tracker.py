@@ -9,7 +9,7 @@ from gaze_app_v4.gaze_tracker import gaze_tracker, startCalibration
 from gaze_app_v4.optimized_heatmap import OptimizedGazeHeatmap
 
 # Obtener la fecha del proyecto al inicio del módulo
-FECHA_PROYECTO = datetime.now().strftime("%Y-%m-%d")
+FECHA_PROYECTO = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 RESULTS_BASE_DIR = os.path.join("results", FECHA_PROYECTO)
 
 def realizar_accion_i(image_path, screen_width, screen_height, last_gaze_points, window_name, output_dir):
