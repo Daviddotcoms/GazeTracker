@@ -1,6 +1,5 @@
 import os
 import sys
-import shutil
 
 def create_shortcut():
     try:
