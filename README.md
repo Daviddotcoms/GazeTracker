@@ -2,7 +2,6 @@
 
 # Gaze Tracker App
 
-
 This is a Python 3.9.11 project about a webcam-based-gaze-tracking. It gaves you an aproximate position of where the user is looking in real time.
 
 ## Instalation:
@@ -15,11 +14,19 @@ Install these dependencies:
 - mediapipe
 - pyautogui
 
+#### 1. Clone repository
+
+```shell
+git clone https://github.com/Daviddotcoms/GazeTracker.git
+```
+
+#### 2. Install project dependencies
+
 ```shell
 pip install -r requirements.txt
 ```
 
-## Run the project:
+#### 3. Run the project:
 ```shell
 python main.py
 ```
@@ -72,9 +79,10 @@ GazeTrackerApp
 └─ videos
    └─ video.mp4
 ```
+> [!WARNING]
+> You must need to add a video on a folder with the name /videos. The format video need to be .mp4 and the name video.
 
-You must need to add a video to see, because this is not the final project.
-
+## Architecture
 ![Architecture](https://github.com/user-attachments/assets/1dc405b6-0941-4884-9d94-f06af3c393a6)
 
 
