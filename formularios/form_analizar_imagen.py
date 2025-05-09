@@ -1,10 +1,8 @@
 import customtkinter as ctk
 import cv2
-from PIL import Image, ImageTk, ImageDraw
-import numpy as np
+from PIL import Image, ImageDraw
 import os
 from tkinter import filedialog, Canvas
-import importlib
 from config import (
     COLOR_VERDE, COLOR_VERDE_HOVER, COLOR_GRIS_CLARO, COLOR_GRIS_MEDIO, 
     COLOR_TEXTO, COLOR_TEXTO_SECUNDARIO, COLOR_BORDE, COLOR_CUERPO_PRINCIPAL,

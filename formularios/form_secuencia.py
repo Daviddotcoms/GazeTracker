@@ -1,6 +1,4 @@
-import importlib
 import customtkinter as ctk
-import cv2
 from PIL import Image, ImageDraw
 import os
 from tkinter import filedialog, Canvas
