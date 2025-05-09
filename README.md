@@ -75,3 +75,6 @@ GazeTrackerApp
 
 You must need to add a video to see, because this is not the final project.
 
+![Architecture](https://github.com/user-attachments/assets/1dc405b6-0941-4884-9d94-f06af3c393a6)
+
+
