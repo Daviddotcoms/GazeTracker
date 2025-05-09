@@ -71,3 +71,6 @@ GazeTrackerApp
    └─ video.mp4
 
 ```
+
+You must need to add a video to see, because this is not the final project.
+
