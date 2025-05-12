@@ -39,18 +39,13 @@ python main.py
 
 ```
 
-Estructura de Carpetas
+# ESTRUCTURA DE CARPETAS
 
 GazeTrackerApp
+├─ assets
+│  └─ eye_icon.ico
 ├─ config.py
-├─ formularios
-│  ├─ form_analizar_imagen.py
-│  ├─ form_inicio.py
-│  ├─ form_instrucciones_analisis.py
-│  ├─ form_maestro_design.py
-│  ├─ form_secuencia.py
-│  └─ __init__.py
-├─ gaze_app_v4
+├─ core
 │  ├─ gaze_heatmap.py
 │  ├─ gaze_tracker.py
 │  ├─ graphs
@@ -59,22 +54,25 @@ GazeTrackerApp
 │  ├─ image_tracker.py
 │  ├─ optimized_heatmap.py
 │  └─ __init__.py
-├─ imagenes
-│  └─ eye_icon.ico
+├─ forms
+│  ├─ analysis_instructions_form.py
+│  ├─ analyze_image_form.py
+│  ├─ home_form.py
+│  ├─ main_form_design.py
+│  ├─ sequence_form.py
+│  └─ __init__.py
+├─ installer.py
 ├─ main.py
-├─ pyproject.toml
 ├─ README.md
 ├─ requirements.txt
-├─ util
-│  ├─ util_imagenes.py
-│  ├─ util_ventana.py
-│  └─ __init__.py
-└─ videos
-   └─ video.mp4
+├─ setup.py
+└─ utils
+   ├─ image_utils.py
+   ├─ path_utils.py
+   ├─ ui_utils.py
+   ├─ window_utils.py
+   └─ __init__.py
 ```
-
 You must need to add a video to see, because this is not the final project.
 
 ![Architecture](https://github.com/user-attachments/assets/1dc405b6-0941-4884-9d94-f06af3c393a6)
-
-
