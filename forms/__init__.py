@@ -1,0 +1,4 @@
+from forms.home_form import FormularioInicio
+from forms.analyze_image_form import FormularioAnalizarImagen
+from forms.sequence_form import FormularioSecuencia
+from forms.main_form_design import FormularioMaestroDesign
