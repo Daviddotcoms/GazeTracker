@@ -2,10 +2,10 @@ from cx_Freeze import Executable, setup
 
 # Archivos y carpetas a incluir
 include_files = [
-    "formularios/",
+    "forms/",
     "gaze_app_v4/",
-    "util/",
-    "imagenes/",
+    "utils/",
+    "assets/",
     "videos/",
     "config.py"
 ]
@@ -50,8 +50,8 @@ build_exe_options = {
     "packages": packages,
     "zip_include_packages": ["encodings"],
     "excludes": ["unittest", "PySide6", "shiboken6"],
-    "optimize": 1,
-    "include_msvcr": True
+    "optimize": 2,
+    "include_msvcr": True,
 }
 
 # Ejecutable con shortcut al menú inicio
