@@ -31,7 +31,6 @@ class FormularioMaestroDesign(ctk.CTk):
         self.controles_barra_superior()        
         self.controles_menu_lateral()
         self.controles_cuerpo()
-        
         # Abrir inicio por defecto
         self.cambiar_tab(0, self.abrir_inicio)
 
@@ -174,11 +173,11 @@ class FormularioMaestroDesign(ctk.CTk):
         
     def abrir_analizar_imagen(self):   
         self.limpiar_panel(self.cuerpo_principal)     
-        FormularioAnalizarImagen(self.cuerpo_principal) 
+        FormularioAnalizarImagen(self.cuerpo_principal)
 
     def abrir_secuencia(self):           
         self.limpiar_panel(self.cuerpo_principal)     
-        FormularioSecuencia(self.cuerpo_principal) 
+        FormularioSecuencia(self.cuerpo_principal)
 
     def limpiar_panel(self, panel):
         # Función para limpiar el contenido del panel
