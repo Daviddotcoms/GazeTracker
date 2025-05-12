@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 from collections import deque
 
-from gaze_app_v4.gaze_heatmap import GazeHeatmap
+from core.gaze_heatmap import GazeHeatmap
 
 
 class OptimizedGazeHeatmap(GazeHeatmap):

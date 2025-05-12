@@ -5,8 +5,8 @@ import collections
 import tkinter as tk
 import os
 from datetime import datetime
-from gaze_app_v4.gaze_tracker import gaze_tracker, startCalibration
-from gaze_app_v4.optimized_heatmap import OptimizedGazeHeatmap
+from core.gaze_tracker import gaze_tracker, startCalibration
+from core.optimized_heatmap import OptimizedGazeHeatmap
 
 # Obtener la fecha del proyecto al inicio del módulo
 FECHA_PROYECTO = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -49,7 +49,7 @@ def realizar_accion_i(image_path, screen_width, screen_height, last_gaze_points,
 
 def track_image(image_path, duration=8):
     root = tk.Tk()
-    root.iconbitmap('./imagenes/eye_icon.ico')
+    root.iconbitmap('./assets/eye_icon.ico')
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     root.destroy()

@@ -7,7 +7,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 import pyautogui
 
-from gaze_app_v4.gaze_heatmap import GazeHeatmap
+from core.gaze_heatmap import GazeHeatmap
 
 class GazeTracker:
     def __init__(self, smoothing_factor=0.35, buffer_size=7):
