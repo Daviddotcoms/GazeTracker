@@ -165,45 +165,44 @@ class FormularioSecuencia():
         self.canvas.after(50, lambda: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
     
     def preparar_area_imagenes(self):
-        """Prepara el área para mostrar las imágenes cargadas (diseño minimalista 3x3)"""
+        """Prepara el área para mostrar las imágenes cargadas (inicialmente oculto)"""
         self.frame_imagenes = ctk.CTkFrame(
             self.contenedor_elementos_carga,
             fg_color=COLOR_CUERPO_PRINCIPAL,
-            height=600
+            height=720
         )
         self.frame_imagenes.pack_propagate(False)
         # Grid de imágenes fijo
         self.grid_imagenes = ctk.CTkFrame(
             self.frame_imagenes,
             fg_color=COLOR_CUERPO_PRINCIPAL,
-            height=420
+            height=660
         )
         self.grid_imagenes.pack(padx=30, pady=(30, 0))
         self.grid_imagenes.pack_propagate(False)
-        # Texto de ayuda alineado a la derecha
+        # Texto de ayuda centrado debajo del grid
         self.label_ayuda = ctk.CTkLabel(
             self.frame_imagenes,
             text="Solo archivos .jpg, .jpeg, .png con menos de 3MB",
             font=("Segoe UI", 11),
             text_color=COLOR_TEXTO_SECUNDARIO,
-            anchor="e",
             fg_color="transparent"
         )
-        self.label_ayuda.pack(anchor="e", padx=40, pady=(8, 0))
+        self.label_ayuda.pack(pady=(10, 10))
         # Botón continuar centrado
         self.boton_continuar = ctk.CTkButton(
             self.frame_imagenes,
             text="Continuar",
-            font=("Segoe UI", 13),
+            font=("Segoe UI", 13, "bold"),
             fg_color=COLOR_BOTON_SECUNDARIO,
             text_color=COLOR_TEXTO,
             hover_color=COLOR_BOTON_SECUNDARIO_HOVER,
-            height=44,
-            width=180,
-            corner_radius=22,
+            height=36,
+            width=160,
+            corner_radius=18,
             command=self.continuar_al_analisis
         )
-        self.boton_continuar.pack(pady=32)
+        self.boton_continuar.pack(pady=(10, 0))
     
     def crear_icono_documento(self):
         """Crea un icono de documento para el área de carga"""
@@ -346,7 +345,7 @@ class FormularioSecuencia():
         self.frame_imagenes.pack(fill="both", expand=True)
     
     def mostrar_grid_imagenes(self):
-        """Muestra las imágenes cargadas en un grid minimalista 3x3"""
+        """Muestra las imágenes cargadas en un grid minimalista de 3x3, con info debajo de cada imagen y botones '+' en celdas vacías"""
         for widget in self.grid_imagenes.winfo_children():
             widget.destroy()
         columnas = 3
@@ -355,39 +354,49 @@ class FormularioSecuencia():
         for i in range(filas * columnas):
             fila = i // columnas
             columna = i % columnas
+            frame_celda = ctk.CTkFrame(
+                self.grid_imagenes,
+                fg_color="#555555" if i >= total_imagenes else "#ffffff",
+                width=240,
+                height=140,
+                corner_radius=10
+            )
+            frame_celda.grid(row=fila, column=columna, padx=18, pady=18)
+            frame_celda.grid_propagate(False)
             if i < total_imagenes:
                 imagen_previa = self.imagenes_originales[i]
-                frame_imagen = ctk.CTkFrame(
-                    self.grid_imagenes,
-                    fg_color="#e0e0e0",
-                    width=260,
-                    height=140,
-                    corner_radius=8
-                )
-                frame_imagen.grid(row=fila, column=columna, padx=18, pady=18)
-                frame_imagen.pack_propagate(False)
                 label_imagen = ctk.CTkLabel(
-                    frame_imagen,
+                    frame_celda,
                     text="",
                     image=imagen_previa
                 )
                 label_imagen.image = imagen_previa
-                label_imagen.pack(expand=True, fill="both")
+                label_imagen.pack(expand=True, fill="both", padx=5, pady=(10, 0))
+                # Mostrar info de la imagen debajo
+                if i < len(self.archivos_imagenes):
+                    try:
+                        img = Image.open(self.archivos_imagenes[i])
+                        width, height = img.size
+                        size_mb = os.path.getsize(self.archivos_imagenes[i]) / (1024 * 1024)
+                        texto_info = f"{width}x{height} px | {size_mb:.2f} MB"
+                    except Exception:
+                        texto_info = "Info no disponible"
+                    label_info = ctk.CTkLabel(
+                        frame_celda,
+                        text=texto_info,
+                        font=("Segoe UI", 10),
+                        text_color=COLOR_TEXTO_SECUNDARIO,
+                        fg_color="transparent",
+                        anchor="center",
+                        justify="center"
+                    )
+                    label_info.pack(pady=(0, 8))
             else:
-                # Celda vacía con botón + grande y centrado
-                frame_vacio = ctk.CTkFrame(
-                    self.grid_imagenes,
-                    fg_color="#555555",
-                    width=260,
-                    height=140,
-                    corner_radius=8
-                )
-                frame_vacio.grid(row=fila, column=columna, padx=18, pady=18)
-                frame_vacio.pack_propagate(False)
-                boton_plus = ctk.CTkButton(
-                    frame_vacio,
+                # Botón '+' grande y centrado en celdas vacías
+                boton_mas = ctk.CTkButton(
+                    frame_celda,
                     text="+",
-                    font=("Segoe UI", 38, "bold"),
+                    font=("Segoe UI", 32, "bold"),
                     fg_color="#555555",
                     text_color="white",
                     hover_color="#888888",
@@ -396,7 +405,7 @@ class FormularioSecuencia():
                     corner_radius=40,
                     command=self.seleccionar_imagenes
                 )
-                boton_plus.pack(expand=True)
+                boton_mas.place(relx=0.5, rely=0.5, anchor="center")
         for i in range(columnas):
             self.grid_imagenes.grid_columnconfigure(i, weight=1)
         for i in range(filas):
