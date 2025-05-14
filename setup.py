@@ -1,76 +1,85 @@
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup, Executable
+import sys
+import os
 
-# Archivos y carpetas a incluir
+# Base para apps con GUI en Windows
+base = "Win32GUI" if sys.platform == "win32" else None
+
+# Archivos que deben incluirse en el build
 include_files = [
-    "forms/",
-    "gaze_app_v4/",
-    "utils/",
-    "assets/",
-    "videos/",
+    ("assets", "assets"),
+    ("forms", "forms"),
+    ("core", "core"),
+    ("utils", "utils"),
+    ("videos", "videos"),
     "config.py"
 ]
 
-# Paquetes que necesita tu app
+# Paquetes necesarios
 packages = [
     "customtkinter",
-    "mediapipe",
-    "numpy",
-    "cv2",
     "PIL",
+    "cv2",
+    "numpy",
     "pyautogui",
     "sklearn",
-    "matplotlib"
+    "matplotlib",
+    "tkinter"
 ]
 
-# Tabla de directorios MSI
-directory_table = [
-    ("ProgramMenuFolder", "TARGETDIR", "."),
-    ("GazeTrackerProgramMenu", "ProgramMenuFolder", "GazeTracker|Gaze Tracker")
-]
-
-# Datos MSI como íconos, ProgId y variables (si se usaran)
-msi_data = {
-    "Directory": directory_table,
-    "Icon": [
-        ("IconId", "imagenes\\eye_icon.ico"),
-    ]
+# Opciones de compilación
+build_exe_options = {
+    "packages": packages,
+    "include_files": include_files,
+    "include_msvcr": True,
+    "optimize": 2
 }
 
-# Configuración MSI
+# Configuración para el MSI
 bdist_msi_options = {
-    "upgrade_code": "{12345678-1234-1234-1234-1234567890ab}",
+    "upgrade_code": "{12345678-1234-1234-1234-1234567890ab}",  # Podés generar uno único si querés
     "add_to_path": False,
     "initial_target_dir": r"[ProgramFilesFolder]\\GazeTracker",
-    "data": msi_data
+    "data": {
+        "Shortcut": [
+            (
+                "DesktopShortcut",               # Atajo
+                "DesktopFolder",                 # Lugar
+                "Gaze Tracker",                  # Nombre visible
+                "TARGETDIR",                     # Directorio del target
+                "[TARGETDIR]GazeTracker.exe",    # Ejecutable
+                None,                            # Argumentos
+                "Gaze Tracker App",              # Descripción
+                None,                            # Hotkey
+                "IconId",                        # Icono
+                None,                            # Trabajar en
+                None,                            # Componente
+                "TARGETDIR"                      # Directorio de instalación
+            )
+        ],
+        "Icon": [
+            ("IconId", os.path.join("assets", "eye_icon.ico"))
+        ]
+    }
 }
 
-# Configuración del build
-build_exe_options = {
-    "include_files": include_files,
-    "packages": packages,
-    "zip_include_packages": ["encodings"],
-    "excludes": ["unittest", "PySide6", "shiboken6"],
-    "optimize": 2,
-    "include_msvcr": True,
-}
-
-# Ejecutable con shortcut al menú inicio
+# Ejecutable principal
 executables = [
     Executable(
         script="main.py",
-        base="Win32GUI",
+        base=base,
         target_name="GazeTracker.exe",
-        icon="imagenes\\eye_icon.ico",
+        icon="assets/eye_icon.ico",
         shortcut_name="Gaze Tracker",
-        shortcut_dir="GazeTrackerProgramMenu"
+        shortcut_dir="DesktopFolder"
     )
 ]
 
-# Setup general
+# Setup final
 setup(
     name="GazeTracker",
     version="0.1",
-    description="Web-cam based gaze tracker desktop application",
+    description="Gaze Tracker Desktop App",
     options={
         "build_exe": build_exe_options,
         "bdist_msi": bdist_msi_options
