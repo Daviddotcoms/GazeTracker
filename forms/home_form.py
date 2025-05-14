@@ -7,29 +7,23 @@ import os
 
 class FormularioInicio():
     def __init__(self, panel_principal, controlador=None):
-        # Inicializar controlador
         self.controlador = controlador
         
-        # Configurar el tema
         ctk.set_appearance_mode("light")
         ctk.set_default_color_theme("green")
         
-        # Variable para controlar la destrucción del formulario
         self.destruido = False
         
-        # Variables para el video
         self.cap = None
         self.is_playing = False
         self.video_thread = None
-        self.video_length = 0  # Duración total del video en frames
-        self.current_frame = 0  # Frame actual
-        self.video_muted = False  # Estado del volumen
+        self.video_length = 0 
+        self.current_frame = 0 
+        self.video_muted = False 
         
-        # Debounce para controles de video
         self.last_action_time = 0
-        self.debounce_interval = 0.5  # 500 ms
+        self.debounce_interval = 0.5  
         
-        # Variable para ajustar automáticamente la altura
         self.ajustar_alturas = True
         
         # Crear el contenedor principal con scrollbar
@@ -60,23 +54,21 @@ class FormularioInicio():
         # Crear las tres columnas horizontales
         self.columna_superior = ctk.CTkFrame(self.contenedor_principal, 
                                            fg_color="#f8f8f8",
-                                           height=100,  # Altura inicial razonable
+                                           height=100,  
                                            corner_radius=20)
         self.columna_media = ctk.CTkFrame(self.contenedor_principal, 
                                         fg_color="#f8f8f8",
-                                        height=100,  # Altura inicial razonable
+                                        height=100,  
                                         corner_radius=20)
         self.columna_inferior = ctk.CTkFrame(self.contenedor_principal, 
                                            fg_color="#f8f8f8",
-                                           height=350,  # Altura más grande para la columna del video
+                                           height=350,  
                                            corner_radius=20)
         
-        # Empaquetar las columnas
         self.columna_superior.pack(side="top", fill="both", expand=False, pady=(5, 10))
         self.columna_media.pack(side="top", fill="both", expand=False, pady=10)
         self.columna_inferior.pack(side="top", fill="both", expand=True, pady=(10, 5))
         
-        # Estructura de la columna superior - Título fuera de la altura ajustada
         self.frame_titulo_superior = ctk.CTkFrame(self.columna_superior, fg_color="transparent", corner_radius=0)
         self.frame_titulo_superior.pack(fill="x", padx=0, pady=0)
         
@@ -86,14 +78,13 @@ class FormularioInicio():
                                           anchor="w", text_color="#00ae2a")
         self.titulo_superior.pack(fill="x", padx=20, pady=(5, 5))
         
-        # Frame contenedor para la descripción superior (este tendrá la altura ajustada)
         self.frame_desc_superior = ctk.CTkFrame(self.columna_superior, 
                                              fg_color="transparent", 
                                              width=self.columna_superior.winfo_width()-40,
                                              height=10,
-                                             corner_radius=0)  # Altura inicial pequeña
+                                             corner_radius=0)  
         self.frame_desc_superior.pack(fill="both", expand=True, padx=20, pady=(0, 5))
-        self.frame_desc_superior.pack_propagate(False)  # Evitar que el tamaño del frame sea determinado por sus hijos
+        self.frame_desc_superior.pack_propagate(False)  
         
         self.desc_superior = ctk.CTkLabel(self.frame_desc_superior, 
                                         text="El objetivo principal de este proyecto es crear un programa que utilice neuromarketing para modular la calidad de productos publicitaios mediante el análisis de imágenes y la generación de mapas de calor que identifiquen las áreas de mayor interés para los consumidores. Esto permitiá optimizar las estrategias publicitarias y mejorar la realizarán pruebas para validar el rendimeinto y la efectividad del programa.",
@@ -104,7 +95,6 @@ class FormularioInicio():
                                         text_color="#545454")
         self.desc_superior.pack(fill="both", expand=True)
         
-        # Estructura de la columna media - Título fuera de la altura ajustada
         self.frame_titulo_media = ctk.CTkFrame(self.columna_media, fg_color="transparent", corner_radius=0)
         self.frame_titulo_media.pack(fill="x", padx=0, pady=0)
         
@@ -114,14 +104,13 @@ class FormularioInicio():
                                        anchor="w", text_color="#00ae2a")
         self.titulo_media.pack(fill="x", padx=20, pady=(5, 5))
         
-        # Frame contenedor para la descripción media (este tendrá la altura ajustada)
         self.frame_desc_media = ctk.CTkFrame(self.columna_media, 
                                           fg_color="transparent", 
                                           width=self.columna_media.winfo_width()-40,
                                           height=10,
-                                          corner_radius=0)  # Altura inicial pequeña
+                                          corner_radius=0)  
         self.frame_desc_media.pack(fill="both", expand=True, padx=20, pady=(0, 5))
-        self.frame_desc_media.pack_propagate(False)  # Evitar que el tamaño del frame sea determinado por sus hijos
+        self.frame_desc_media.pack_propagate(False)  
         
         self.desc_media = ctk.CTkLabel(self.frame_desc_media, 
                                      text="El sistema utiliza la cámara web integrada para detectar la mirada del usuario mediante la detección de pupilas, con el objetivo de analizar imágenes publicitarias. Se implementará un sistema de puntos de calor que permitirá identificar áreas de interés en las imágenes, facilitando así la toma de decisiones en estrategias publicitarias. Se realizarán pruebas para validar el rendimiento y la efectividad del programa.",
@@ -132,7 +121,6 @@ class FormularioInicio():
                                      text_color="#545454")
         self.desc_media.pack(fill="both", expand=True)
         
-        # Contenido de la columna inferior (Video)
         self.titulo_inferior = ctk.CTkLabel(self.columna_inferior, 
                                           text="Video Explicativo", 
                                           font=("Segoe UI", 14, "bold"),
@@ -144,14 +132,14 @@ class FormularioInicio():
                                       fg_color="#e0e0e0",
                                       height=500,  # Aumentar la altura del frame
                                       corner_radius=16)
-        self.video_frame.pack(fill="both", expand=True, padx=20, pady=(0, 10))  # Reducir padding inferior
+        self.video_frame.pack(fill="both", expand=True, padx=20, pady=(0, 10))  
         
         # Label para mostrar el video
         self.video_display = ctk.CTkLabel(self.video_frame, 
                                         text="",
                                         fg_color="#e0e0e0",
                                         corner_radius=12)
-        self.video_display.pack(fill="both", expand=True, padx=10, pady=(10, 5))  # Reducir padding inferior
+        self.video_display.pack(fill="both", expand=True, padx=10, pady=(10, 5))  
         
         # Frame para los controles de video
         self.controles_frame = ctk.CTkFrame(self.columna_inferior, 
@@ -177,7 +165,7 @@ class FormularioInicio():
                                                 corner_radius=4,
                                                 mode="determinate")
         self.barra_progreso.pack(side="left", fill="x", expand=True, padx=5)
-        self.barra_progreso.set(0)  # Inicializar en 0
+        self.barra_progreso.set(0)  
         
         # Agregar evento de clic para la barra de progreso
         self.barra_progreso.bind("<Button-1>", self.establecer_progreso)
@@ -195,7 +183,7 @@ class FormularioInicio():
         
         # Botón de play/pause
         self.play_pause_button = ctk.CTkButton(self.botones_frame,
-                                              text="⏸️",  # Iniciar con pausa ya que comienza reproduciéndose
+                                              text="⏸️",  
                                               font=("Segoe UI", 14),
                                               width=40,
                                               height=30,
@@ -217,7 +205,7 @@ class FormularioInicio():
                                            corner_radius=12)
         self.restart_button.pack(side="left", padx=10)
         
-        # Frame para el control de volumen (lado derecho)
+        # Frame para el control de volumen
         self.volumen_frame = ctk.CTkFrame(self.botones_frame, fg_color="transparent", corner_radius=0)
         self.volumen_frame.pack(side="right", padx=10)
         
@@ -240,13 +228,12 @@ class FormularioInicio():
                                            number_of_steps=10,
                                            width=100)
         self.volumen_slider.pack(side="right", padx=5)
-        self.volumen_slider.set(0.8)  # Valor predeterminado 80%
+        self.volumen_slider.set(0.8)  
         
         # Configurar eventos para actualizar el scroll cuando cambia el tamaño
         self.canvas.bind("<Configure>", self.on_canvas_configure)
         self.contenedor_principal.bind("<Configure>", self.on_frame_configure)
         
-        # Configurar evento para actualizar el wraplength del texto
         self.columna_superior.bind("<Configure>", self.on_columna_resize)
         self.columna_media.bind("<Configure>", self.on_columna_resize)
         
@@ -321,9 +308,8 @@ class FormularioInicio():
             # Mostrar el primer frame
             self.mostrar_frame(frame)
             
-            # Iniciar en estado pausado
             self.is_playing = False
-            self.play_pause_button.configure(text="▶️")  # Cambiar a icono de play
+            self.play_pause_button.configure(text="▶️")
             
         except Exception as e:
             print(f"Error al cargar video: {str(e)}")
@@ -376,7 +362,7 @@ class FormularioInicio():
             
             # Actualizar el label
             self.video_display.configure(image=ctk_image)
-            self.video_display.image = ctk_image  # Mantener referencia
+            self.video_display.image = ctk_image  
         except Exception as e:
             print(f"Error al mostrar frame: {str(e)}")
     
@@ -418,8 +404,7 @@ class FormularioInicio():
                     # Esperar un momento antes de reiniciar
                     time.sleep(0.5)
             except Exception as e:
-                time.sleep(1)  # Esperar antes de intentar de nuevo
-                # Si hay varios errores consecutivos, detener la reproducción
+                time.sleep(1)  
                 if not hasattr(self, 'video_display') or not self.video_display.winfo_exists():
                     self.is_playing = False
                     break
@@ -436,7 +421,6 @@ class FormularioInicio():
         
         if self.cap is not None:
             if self.video_thread is not None:
-                # Esperar a que el hilo termine (con timeout)
                 if self.video_thread.is_alive():
                     self.video_thread.join(timeout=1.0)
             self.cap.release()
@@ -459,11 +443,11 @@ class FormularioInicio():
         if self.is_playing:
             # Pausar el video
             self.is_playing = False
-            self.play_pause_button.configure(text="▶️")  # Cambiar a icono de play
+            self.play_pause_button.configure(text="▶️")
         else:
             # Reproducir el video
             self.is_playing = True
-            self.play_pause_button.configure(text="⏸️")  # Cambiar a icono de pausa
+            self.play_pause_button.configure(text="⏸️")
             
             # Si el hilo no está activo, iniciarlo nuevamente
             if self.video_thread is None or not self.video_thread.is_alive():
@@ -473,7 +457,6 @@ class FormularioInicio():
     
     def reiniciar_video(self):
         """Reinicia el video desde el principio"""
-        # Aplicar debounce
         if not self.debounce_check():
             return
             
@@ -497,14 +480,13 @@ class FormularioInicio():
     
     def toggle_mute(self):
         """Activa o desactiva el sonido del video"""
-        # Aplicar debounce
         if not self.debounce_check():
             return
             
         if self.video_muted:
             # Activar sonido
             self.video_muted = False
-            self.mute_button.configure(text="🔊")  # Icono de volumen
+            self.mute_button.configure(text="🔊")
             # Restaurar el nivel de volumen anterior
             valor_volumen = self.volumen_slider.get()
             # Aquí se implementaría el código para ajustar el volumen real
@@ -512,7 +494,7 @@ class FormularioInicio():
         else:
             # Desactivar sonido
             self.video_muted = True
-            self.mute_button.configure(text="🔇")  # Icono de mute
+            self.mute_button.configure(text="🔇")
             # Guardar el nivel de volumen actual antes de mutear
             valor_volumen = self.volumen_slider.get()
             # Aquí se implementaría el código para silenciar el video
@@ -533,7 +515,6 @@ class FormularioInicio():
     
     def establecer_progreso(self, event):
         """Permite al usuario hacer clic en la barra de progreso para saltar a esa posición"""
-        # Aplicar debounce
         if not self.debounce_check():
             return
             
@@ -591,29 +572,27 @@ class FormularioInicio():
         """Ajusta el wraplength del texto cuando se redimensiona la columna"""
         # Determinar qué label actualizar basado en el widget que disparó el evento
         if event.widget == self.columna_superior and hasattr(self, 'frame_desc_superior'):
-            # Actualizar el tamaño del frame contenedor
-            self.frame_desc_superior.configure(width=event.width-40) # 40px para márgenes
+            self.frame_desc_superior.configure(width=event.width-40) 
         elif event.widget == self.columna_media and hasattr(self, 'frame_desc_media'):
-            # Actualizar el tamaño del frame contenedor
-            self.frame_desc_media.configure(width=event.width-40) # 40px para márgenes
+            self.frame_desc_media.configure(width=event.width-40) 
     
     def on_frame_desc_resize(self, event):
         """Ajusta el wraplength del texto cuando se redimensiona el frame contenedor"""
         # Determinar qué label actualizar basado en el widget que disparó el evento
         if event.widget == self.frame_desc_superior and hasattr(self, 'desc_superior'):
             # Establecer el wraplength a un poco menos que el ancho del contenedor
-            new_width = max(200, event.width - 10)  # Margen más pequeño para texto reducido
+            new_width = max(200, event.width - 10)
             self.desc_superior.configure(wraplength=new_width)
         elif event.widget == self.frame_desc_media and hasattr(self, 'desc_media'):
-            new_width = max(200, event.width - 10)  # Margen más pequeño para texto reducido
+            new_width = max(200, event.width - 10)
             self.desc_media.configure(wraplength=new_width)
 
     def ajustar_wraplength_inicial(self):
         """Ajusta el ancho inicial de los textos una vez que la ventana está cargada"""
         if hasattr(self, 'frame_desc_superior') and hasattr(self, 'desc_superior'):
             width = self.frame_desc_superior.winfo_width()
-            if width > 50:  # Asegurarse de que el frame tiene un ancho válido
-                self.desc_superior.configure(wraplength=width-10)  # Reducir margen
+            if width > 50: 
+                self.desc_superior.configure(wraplength=width-10)  
                 
                 # Ajustar altura automáticamente si es necesario
                 if self.ajustar_alturas:
@@ -622,8 +601,8 @@ class FormularioInicio():
         
         if hasattr(self, 'frame_desc_media') and hasattr(self, 'desc_media'):
             width = self.frame_desc_media.winfo_width()
-            if width > 50:  # Asegurarse de que el frame tiene un ancho válido
-                self.desc_media.configure(wraplength=width-10)  # Reducir margen
+            if width > 50: 
+                self.desc_media.configure(wraplength=width-10)  
                 
                 # Ajustar altura automáticamente si es necesario
                 if self.ajustar_alturas:
@@ -645,7 +624,7 @@ class FormularioInicio():
                 altura_desc = self.desc_superior.winfo_reqheight()
                 
                 # La altura total será la altura del texto más un margen razonable
-                nueva_altura = altura_desc + 15  # Margen de 15px
+                nueva_altura = altura_desc + 15
                 
                 # Aplicar la nueva altura al frame de descripción, no a la columna
                 self.frame_desc_superior.configure(height=nueva_altura)
@@ -666,7 +645,7 @@ class FormularioInicio():
                 altura_desc = self.desc_media.winfo_reqheight()
                 
                 # La altura total será la altura del texto más un margen razonable
-                nueva_altura = altura_desc + 15  # Margen de 15px
+                nueva_altura = altura_desc + 15
                 
                 # Aplicar la nueva altura al frame de descripción, no a la columna
                 self.frame_desc_media.configure(height=nueva_altura)
@@ -691,5 +670,3 @@ class FormularioInicio():
             # Llamar a los métodos de ajuste con un pequeño retardo entre ellos
             self.ajustar_altura_superior()
             self.columna_superior.after(100, self.ajustar_altura_media)
-
-        
