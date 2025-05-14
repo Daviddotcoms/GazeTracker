@@ -2,7 +2,6 @@ import customtkinter as ctk
 from config import COLOR_BARRA_SUPERIOR, COLOR_GRIS_CLARO, COLOR_TEXTO
 
 import utils.window_utils as window_utils
-import utils.image_utils as util_img
 from utils.path_utils import resource_path
 
 # Pantallas
