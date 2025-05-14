@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw
 import os
 from tkinter import filedialog, Canvas
 import tkinter as tk
-from config import  COLOR_BARRA_SUPERIOR, COLOR_BORDE, COLOR_BOTON_SECUNDARIO, COLOR_BOTON_SECUNDARIO_HOVER, COLOR_GRIS_MEDIO, COLOR_TEXTO, COLOR_TEXTO_SECUNDARIO, COLOR_VERDE_HOVER, COLOR_CUERPO_PRINCIPAL
+from config import  COLOR_BARRA_SUPERIOR, COLOR_TEXTO_BLANCO, COLOR_NARANJA, COLOR_BORDE, COLOR_BOTON_SECUNDARIO, COLOR_BOTON_SECUNDARIO_HOVER, COLOR_GRIS_MEDIO, COLOR_TEXTO, COLOR_TEXTO_SECUNDARIO, COLOR_VERDE_HOVER, COLOR_CUERPO_PRINCIPAL, COLOR_VERDE
 import threading
 from utils.image_utils import leer_imagen
 
@@ -25,7 +25,13 @@ class FormularioSecuencia():
         self.color_texto_secundario = COLOR_TEXTO_SECUNDARIO  # Texto secundario
         
         # Variables para las imágenes
-        self.max_imagenes = 9          # Máximo número de imágenes permitidas
+        self.max_imagenes = 6          # Máximo número de imágenes permitidas
+        self.archivos_imagenes = []    # Lista para almacenar las rutas de las imágenes
+        self.imagenes_originales = []  # Lista para almacenar las imágenes cargadas
+        
+        # Registrar este formulario en el controlador si existe
+        if self.controlador:
+            self.controlador.registrar_formulario_secuencia(self)
         
         # Crear el contenedor principal con scrollbar
         self.contenedor_exterior = ctk.CTkFrame(panel_principal, fg_color="white")
@@ -156,7 +162,7 @@ class FormularioSecuencia():
         
         self.texto_info = ctk.CTkLabel(
             self.contenedor_elementos_carga,
-            text="Solo archivos .jpg, .jpeg, .png con menos de 3MB (Max: 9 imágenes)",
+            text="Solo archivos .jpg, .jpeg, .png con menos de 3MB (Max: 6 imágenes)",
             font=("Segoe UI", 12),
             text_color=COLOR_TEXTO_SECUNDARIO
         )
@@ -176,33 +182,26 @@ class FormularioSecuencia():
         self.grid_imagenes = ctk.CTkFrame(
             self.frame_imagenes,
             fg_color=COLOR_CUERPO_PRINCIPAL,
-            height=660
+            height=600
         )
         self.grid_imagenes.pack(padx=30, pady=(30, 0))
         self.grid_imagenes.pack_propagate(False)
         # Texto de ayuda centrado debajo del grid
         self.label_ayuda = ctk.CTkLabel(
             self.frame_imagenes,
-            text="Solo archivos .jpg, .jpeg, .png con menos de 3MB",
+            text="Solo archivos .jpg, .jpeg, .png con menos de 3MB (Máx: 6 imágenes)",
             font=("Segoe UI", 11),
             text_color=COLOR_TEXTO_SECUNDARIO,
             fg_color="transparent"
         )
         self.label_ayuda.pack(pady=(10, 10))
-        # Botón continuar centrado
-        self.boton_continuar = ctk.CTkButton(
+        
+        # Frame para botones de acción debajo del texto de ayuda
+        self.frame_botones = ctk.CTkFrame(
             self.frame_imagenes,
-            text="Continuar",
-            font=("Segoe UI", 13, "bold"),
-            fg_color=COLOR_BOTON_SECUNDARIO,
-            text_color=COLOR_TEXTO,
-            hover_color=COLOR_BOTON_SECUNDARIO_HOVER,
-            height=36,
-            width=160,
-            corner_radius=18,
-            command=self.continuar_al_analisis
+            fg_color=COLOR_CUERPO_PRINCIPAL
         )
-        self.boton_continuar.pack(pady=(10, 0))
+        self.frame_botones.pack(fill="x", padx=30, pady=(0, 20))
     
     def crear_icono_documento(self):
         """Crea un icono de documento para el área de carga"""
@@ -230,7 +229,7 @@ class FormularioSecuencia():
         draw.polygon(arrow_points, fill="#aaaaaa")
         
         # Convertir a formato CTkImage
-        img_ctk = ctk.CTkImage(light_image=img, size=(70, 70))
+        img_ctk = ctk.CTkImage(light_image=img, dark_image=img, size=(70, 70))
         return img_ctk
     
     def dibujar_borde_punteado(self, event=None):
@@ -327,7 +326,8 @@ class FormularioSecuencia():
                     print(f"Se cargaron {imagenes_cargadas} imágenes correctamente")
                     if len(self.imagenes_originales) == imagenes_cargadas:
                         self.ocultar_elementos_carga()
-                    self.mostrar_grid_imagenes()
+                    # Usar after para actualizar la UI desde el hilo principal
+                    self.canvas.after(0, self.mostrar_grid_imagenes)
                 else:
                     self.mostrar_error("No se pudo cargar ninguna imagen.")
             threading.Thread(target=cargar_y_mostrar).start()
@@ -345,71 +345,169 @@ class FormularioSecuencia():
         self.frame_imagenes.pack(fill="both", expand=True)
     
     def mostrar_grid_imagenes(self):
-        """Muestra las imágenes cargadas en un grid minimalista de 3x3, con info debajo de cada imagen y botones '+' en celdas vacías"""
+        """Muestra las imágenes cargadas en un grid, con un botón para eliminar cada imagen,
+        y botones al final para agregar más y eliminar todas"""
         for widget in self.grid_imagenes.winfo_children():
             widget.destroy()
+            
+        # Limpiar los botones existentes
+        for widget in self.frame_botones.winfo_children():
+            widget.destroy()
+            
         columnas = 3
-        filas = 3
         total_imagenes = len(self.imagenes_originales)
-        for i in range(filas * columnas):
+        
+        # Asegurar que el frame de imágenes esté visible si hay imágenes
+        if total_imagenes > 0:
+            self.frame_imagenes.pack(fill="both", expand=True)
+            
+        # Calcular número de filas necesarias
+        filas_imagenes = (total_imagenes + columnas - 1) // columnas
+            
+        # Mostrar las imágenes existentes
+        for i in range(total_imagenes):
             fila = i // columnas
             columna = i % columnas
+            
+            # Frame para la imagen
             frame_celda = ctk.CTkFrame(
                 self.grid_imagenes,
-                fg_color="#555555" if i >= total_imagenes else "#ffffff",
+                fg_color="#ffffff",
                 width=240,
-                height=140,
+                height=180,
                 corner_radius=10
             )
             frame_celda.grid(row=fila, column=columna, padx=18, pady=18)
             frame_celda.grid_propagate(False)
-            if i < total_imagenes:
-                imagen_previa = self.imagenes_originales[i]
-                label_imagen = ctk.CTkLabel(
-                    frame_celda,
-                    text="",
-                    image=imagen_previa
-                )
-                label_imagen.image = imagen_previa
-                label_imagen.pack(expand=True, fill="both", padx=5, pady=(10, 0))
-                # Mostrar info de la imagen debajo
-                if i < len(self.archivos_imagenes):
-                    try:
-                        img = Image.open(self.archivos_imagenes[i])
-                        width, height = img.size
-                        size_mb = os.path.getsize(self.archivos_imagenes[i]) / (1024 * 1024)
-                        texto_info = f"{width}x{height} px | {size_mb:.2f} MB"
-                    except Exception:
-                        texto_info = "Info no disponible"
-                    label_info = ctk.CTkLabel(
-                        frame_celda,
-                        text=texto_info,
-                        font=("Segoe UI", 10),
-                        text_color=COLOR_TEXTO_SECUNDARIO,
-                        fg_color="transparent",
-                        anchor="center",
-                        justify="center"
-                    )
-                    label_info.pack(pady=(0, 8))
-            else:
-                # Botón '+' grande y centrado en celdas vacías
-                boton_mas = ctk.CTkButton(
-                    frame_celda,
-                    text="+",
-                    font=("Segoe UI", 32, "bold"),
-                    fg_color="#555555",
-                    text_color="white",
-                    hover_color="#888888",
-                    width=80,
-                    height=80,
-                    corner_radius=40,
-                    command=self.seleccionar_imagenes
-                )
-                boton_mas.place(relx=0.5, rely=0.5, anchor="center")
+            
+            # Contenedor para la imagen y su información
+            frame_contenido = ctk.CTkFrame(
+                frame_celda,
+                fg_color="#ffffff",
+                corner_radius=0
+            )
+            frame_contenido.pack(expand=True, fill="both", padx=5, pady=10)
+            
+            # Mostrar la imagen
+            imagen_previa = self.imagenes_originales[i]
+            label_imagen = ctk.CTkLabel(
+                frame_contenido,
+                text="",
+                image=imagen_previa
+            )
+            label_imagen.pack(expand=True, fill="both", padx=5, pady=(10, 0))
+            
+            # Mostrar info de la imagen
+            try:
+                img = Image.open(self.archivos_imagenes[i])
+                width, height = img.size
+                size_mb = os.path.getsize(self.archivos_imagenes[i]) / (1024 * 1024)
+                texto_info = f"{width}x{height} px | {size_mb:.2f} MB"
+            except Exception:
+                texto_info = "Info no disponible"
+                
+            label_info = ctk.CTkLabel(
+                frame_contenido,
+                text=texto_info,
+                font=("Segoe UI", 10),
+                text_color=COLOR_TEXTO_SECUNDARIO,
+                fg_color="transparent",
+                anchor="center",
+                justify="center"
+            )
+            label_info.pack(pady=(0, 5))
+            
+            # Botón para eliminar esta imagen específica como un ícono en la esquina superior izquierda
+            idx = i  # Necesario para capturar el valor actual de i
+            
+            # Crear un ícono de X para el botón eliminar
+            icono_x = self.crear_icono_x()
+            
+            boton_eliminar = ctk.CTkButton(
+                frame_celda,
+                text="",
+                image=icono_x,
+                fg_color="#ff5555",
+                text_color="white",
+                hover_color="#ff3333",
+                width=24,
+                height=24,
+                corner_radius=12,
+                command=lambda idx=idx: self.eliminar_imagen(idx)
+            )
+            # Posicionar el botón en la esquina superior izquierda
+            boton_eliminar.place(x=10, y=10)
+        
+        # Añadir los botones de acción debajo del texto de ayuda
+        if total_imagenes > 0:
+            # Contenedor izquierdo para los botones de acción
+            frame_acciones_izq = ctk.CTkFrame(
+                self.frame_botones,
+                fg_color="transparent"
+            )
+            frame_acciones_izq.pack(side="left", fill="y", padx=(20, 0), pady=10)
+            
+            # Contenedor derecho para el botón continuar
+            frame_acciones_der = ctk.CTkFrame(
+                self.frame_botones,
+                fg_color="transparent"
+            )
+            frame_acciones_der.pack(side="right", fill="y", padx=(0, 20), pady=10)
+            
+            # Botón para agregar más imágenes
+            boton_agregar = ctk.CTkButton(
+                frame_acciones_izq,
+                text="Agregar más",
+                font=("Segoe UI", 13),
+                fg_color=COLOR_NARANJA,
+                text_color=COLOR_TEXTO_BLANCO,
+                hover_color=COLOR_BOTON_SECUNDARIO_HOVER,
+                width=140,
+                height=36,
+                corner_radius=18,
+                command=self.seleccionar_imagenes
+            )
+            boton_agregar.pack(side="left", padx=(0, 10))
+            
+            # Botón para eliminar todas las imágenes
+            boton_eliminar_todas = ctk.CTkButton(
+                frame_acciones_izq,
+                text="Eliminar todas",
+                font=("Segoe UI", 13),
+                fg_color=COLOR_BOTON_SECUNDARIO,
+                text_color=COLOR_TEXTO,
+                hover_color=COLOR_BOTON_SECUNDARIO_HOVER,
+                width=140,
+                height=36,
+                corner_radius=18,
+                command=self.eliminar_todas_imagenes
+            )
+            boton_eliminar_todas.pack(side="left", padx=(0, 10))
+            
+            # Botón continuar a la derecha
+            self.boton_continuar = ctk.CTkButton(
+                frame_acciones_der,
+                text="Continuar",
+                font=("Segoe UI", 13),
+                fg_color=COLOR_VERDE,
+                text_color=COLOR_TEXTO_BLANCO,
+                hover_color=COLOR_VERDE_HOVER,
+                height=36,
+                width=160,
+                corner_radius=18,
+                command=self.continuar_al_analisis
+            )
+            self.boton_continuar.pack(side="right")
+            
+        # Configurar el peso de las columnas y filas
         for i in range(columnas):
             self.grid_imagenes.grid_columnconfigure(i, weight=1)
-        for i in range(filas):
+        for i in range(filas_imagenes):
             self.grid_imagenes.grid_rowconfigure(i, weight=1)
+            
+        # Asegurarse de que el scrollregion se actualice
+        self.canvas.update_idletasks()
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
     
     def eliminar_imagen(self, indice):
         """Elimina una imagen específica por su índice"""
@@ -421,6 +519,9 @@ class FormularioSecuencia():
             # Si no quedan imágenes, volver al estado inicial
             if len(self.imagenes_originales) == 0:
                 self.frame_imagenes.pack_forget()
+                # Limpiar los botones
+                for widget in self.frame_botones.winfo_children():
+                    widget.destroy()
                 self.mostrar_elementos_carga()
             else:
                 # Actualizar el grid de imágenes
@@ -434,6 +535,9 @@ class FormularioSecuencia():
         
         # Volver al estado inicial
         self.frame_imagenes.pack_forget()
+        # Limpiar los botones
+        for widget in self.frame_botones.winfo_children():
+            widget.destroy()
         self.mostrar_elementos_carga()
         
         # Actualizar el scroll region
@@ -464,13 +568,14 @@ class FormularioSecuencia():
         btn = ctk.CTkButton(
             ventana, 
             text="Aceptar",
-            command=ventana.destroy,
-            fg_color="#cdcdcd",
-            text_color="#333333",
-            hover_color="#bebebe",
+            font=("Segoe UI", 13),
+            fg_color=COLOR_BOTON_SECUNDARIO,
+            text_color=COLOR_TEXTO,
+            hover_color=COLOR_BOTON_SECUNDARIO_HOVER,
             height=36,
             width=120,
-            corner_radius=18
+            corner_radius=18,
+            command=ventana.destroy
         )
         btn.pack(pady=20)
         
@@ -502,13 +607,14 @@ class FormularioSecuencia():
         btn = ctk.CTkButton(
             ventana, 
             text="Aceptar",
-            command=ventana.destroy,
-            fg_color="#cdcdcd",
-            text_color="#333333",
-            hover_color="#bebebe",
+            font=("Segoe UI", 13),
+            fg_color=COLOR_BOTON_SECUNDARIO,
+            text_color=COLOR_TEXTO,
+            hover_color=COLOR_BOTON_SECUNDARIO_HOVER,
             height=36,
             width=120,
-            corner_radius=18
+            corner_radius=18,
+            command=ventana.destroy
         )
         btn.pack(pady=20)
         
@@ -546,13 +652,14 @@ class FormularioSecuencia():
         btn = ctk.CTkButton(
             ventana, 
             text="Aceptar",
-            command=ventana.destroy,
-            fg_color="#cdcdcd",
-            text_color="#333333",
-            hover_color="#bebebe",
+            font=("Segoe UI", 13),
+            fg_color=COLOR_BOTON_SECUNDARIO,
+            text_color=COLOR_TEXTO,
+            hover_color=COLOR_BOTON_SECUNDARIO_HOVER,
             height=36,
             width=120,
-            corner_radius=18
+            corner_radius=18,
+            command=ventana.destroy
         )
         btn.pack(pady=10)
         
@@ -562,8 +669,17 @@ class FormularioSecuencia():
     def continuar_al_analisis(self):
         """Navega a la pantalla de instrucciones de análisis (solo navegación, sin ejecutar nada más)"""
         try:
+            # Guardar las rutas de las imágenes antes de limpiar
+            rutas_imagenes = self.archivos_imagenes.copy()
+            
+            # Limpiar las imágenes y la interfaz
+            self.eliminar_todas_imagenes()
+            self.limpiar_pantalla()
+            
+            # Navegar a la siguiente pantalla
             from forms.analysis_instructions_form import FormularioInstruccionesAnalisis
-            FormularioInstruccionesAnalisis(self.contenedor_exterior, self.controlador, rutas_imagenes=self.archivos_imagenes)
+            FormularioInstruccionesAnalisis(self.contenedor_exterior, self.controlador, rutas_imagenes=rutas_imagenes)
+            
         except Exception as e:
             print(f"Error al navegar a pantalla de instrucciones: {type(e).__name__}: {e}")
             import traceback
@@ -579,6 +695,10 @@ class FormularioSecuencia():
             self.canvas.unbind_all("<Button-4>")
             self.canvas.unbind_all("<Button-5>")
             self.canvas.unbind_all("<Shift-MouseWheel>")
+            
+            # Limpiar las listas de imágenes
+            self.archivos_imagenes.clear()
+            self.imagenes_originales.clear()
             
             # Desempaquetar el contenedor principal
             self.contenedor_principal.pack_forget()
@@ -607,3 +727,18 @@ class FormularioSecuencia():
             import traceback
             traceback.print_exc()
             return False
+
+    def crear_icono_x(self):
+        """Crea un ícono de X para el botón eliminar"""
+        # Crear una imagen base transparente
+        img = Image.new('RGBA', (20, 20), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
+        
+        # Dibujar una X blanca
+        # Línea diagonal de izquierda arriba a derecha abajo
+        draw.line((4, 4, 16, 16), fill="white", width=2)
+        # Línea diagonal de derecha arriba a izquierda abajo
+        draw.line((16, 4, 4, 16), fill="white", width=2)
+        
+        # Convertir a formato CTkImage
+        return ctk.CTkImage(light_image=img, dark_image=img, size=(16, 16))
