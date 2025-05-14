@@ -1,11 +1,11 @@
-import os  # Para manejo de rutas y archivos
-import threading  # Para carga en segundo plano
-import gc  # Para liberar memoria de imágenes grandes
+import os  
+import threading  
+import gc  
 
-import customtkinter as ctk  # UI principal
-import cv2  # Procesamiento de imágenes
-from PIL import Image, ImageDraw  # Para iconos y manipulación de imágenes
-from tkinter import filedialog, Canvas  # Diálogo de archivos y canvas de UI
+import customtkinter as ctk 
+import cv2  
+from PIL import Image, ImageDraw  
+from tkinter import filedialog, Canvas
 
 from config import (
     COLOR_VERDE, COLOR_VERDE_HOVER, 
