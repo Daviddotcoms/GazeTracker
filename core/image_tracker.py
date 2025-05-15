@@ -296,7 +296,7 @@ def mostrar_pantalla_finalizado():
         main_frame,
         text="Cerrar",
         font=tkfont.Font(family="Segoe UI", size=12),
-        fg="#545454",
+        fg=COLOR_MENU_CURSOR_ENCIMA,
         bg="#f0f0f0",
         relief="flat",
         padx=30,
