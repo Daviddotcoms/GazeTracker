@@ -63,6 +63,26 @@ bdist_msi_options = {
     }
 }
 
+# Configuración para DMG en macOS
+bdist_dmg_options = {
+    "volume_label": "GazeTracker",
+    "applications_shortcut": True,
+    "format": "UDZO",
+    "filesystem": "HFS+",
+    "background": "builtin-arrow",
+    "icon_locations": {
+        "GazeTracker.app": (140, 120),
+        "Applications": (500, 120)
+    },
+    "default_view": "icon-view",
+    "show_icon_preview": False,
+    "show_status_bar": False,
+    "show_tab_view": False,
+    "show_path_bar": False,
+    "show_sidebar": False,
+    "windows_rect": ((100, 100), (640, 280))
+}
+
 # Ejecutable principal
 executables = [
     Executable(
@@ -82,7 +102,8 @@ setup(
     description="Gaze Tracker Desktop App",
     options={
         "build_exe": build_exe_options,
-        "bdist_msi": bdist_msi_options
+        "bdist_msi": bdist_msi_options,
+        "bdist_dmg": bdist_dmg_options
     },
     executables=executables
 )
