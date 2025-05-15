@@ -7,6 +7,7 @@ import os
 from datetime import datetime
 from core.gaze_tracker import gaze_tracker, startCalibration
 from core.optimized_heatmap import OptimizedGazeHeatmap
+from config import COLOR_MENU_CURSOR_ENCIMA, COLOR_NARANJA
 
 # Obtener la fecha del proyecto al inicio del módulo
 FECHA_PROYECTO = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -162,7 +163,7 @@ def track_image(image_path, duration=8):
     cv2.destroyAllWindows()
     return esc_pressed
 
-def mostrar_pantalla_bienvenida():
+def mostrar_pantalla_bienvenida(image_paths, duration):
     import tkinter as tk
     from tkinter import font as tkfont
     global root_bienvenida
@@ -187,18 +188,35 @@ def mostrar_pantalla_bienvenida():
         root_bienvenida,
         text="Presiona ESPACIO para comenzar",
         font=tkfont.Font(family="Segoe UI", size=13, slant="italic"),
-        fg="#545454", bg="#fafafa"
+        fg=COLOR_MENU_CURSOR_ENCIMA, bg="#fafafa"
     )
     label_press.place(relx=0.5, rely=0.58, anchor="center")
-    root_bienvenida.bind("<space>", lambda e: root_bienvenida.quit())
-    root_bienvenida.bind("<Return>", lambda e: root_bienvenida.quit())
+    
+    def start_calibration_and_analysis(e=None):
+        root_bienvenida.destroy()
+        startCalibration()
+        # Continuar con el análisis de imágenes
+        for image_path in image_paths:
+            print("Procesando imagen:", image_path)
+            exit_flag = track_image(image_path, duration=duration)
+            if exit_flag:
+                break
+        cv2.destroyAllWindows()
+        mostrar_pantalla_finalizado()
+    
+    root_bienvenida.bind("<space>", start_calibration_and_analysis)
+    root_bienvenida.bind("<Return>", start_calibration_and_analysis)
     root_bienvenida.focus_set()
     root_bienvenida.mainloop()
 
 def cerrar_pantalla_bienvenida():
     global root_bienvenida
-    if root_bienvenida:
-        root_bienvenida.destroy()
+    try:
+        if root_bienvenida and root_bienvenida.winfo_exists():
+            root_bienvenida.destroy()
+    except:
+        pass
+    finally:
         root_bienvenida = None
 
 def mostrar_pantalla_finalizado():
@@ -206,17 +224,47 @@ def mostrar_pantalla_finalizado():
     from tkinter import font as tkfont
     import os
     import platform
+    
     root_final = tk.Tk()
     root_final.configure(bg='#fafafa')
     root_final.attributes('-fullscreen', True)
     root_final.title('Finalizado')
+    
+    # Frame principal para centrar todo el contenido
+    main_frame = tk.Frame(root_final, bg='#fafafa')
+    main_frame.place(relx=0.5, rely=0.5, anchor="center")
+    
+    # Título con un diseño más atractivo
     label_title = tk.Label(
-        root_final, text="FINALIZADO",
-        font=tkfont.Font(family="Segoe UI", size=26, weight="bold"),
-        fg="#F39200", bg="#fafafa"
+        main_frame,
+        text="Finalizado",
+        font=tkfont.Font(family="Segoe UI", size=32, weight="bold"),
+        fg=COLOR_NARANJA,
+        bg="#fafafa"
     )
-    label_title.place(relx=0.5, rely=0.45, anchor="center")
-    # Texto con link
+    label_title.pack(pady=(0, 30))
+    
+    
+    # Frame para el contenedor del link
+    link_frame = tk.Frame(main_frame, bg='#fafafa')
+    link_frame.pack(pady=20)
+    
+    # Texto descriptivo
+    label_desc = tk.Label(
+        link_frame,
+        text="Para ver los resultados del análisis",
+        font=tkfont.Font(family="Segoe UI", size=14),
+        fg=COLOR_MENU_CURSOR_ENCIMA,
+        bg="#fafafa"
+    )
+    label_desc.pack(side=tk.LEFT, padx=(0, 5))
+    
+    def on_enter(e):
+        label_link.configure(fg=COLOR_NARANJA)
+        
+    def on_leave(e):
+        label_link.configure(fg=COLOR_MENU_CURSOR_ENCIMA)
+    
     def abrir_analisis(event=None):
         results_path = os.path.abspath('results')
         if platform.system() == 'Windows':
@@ -226,31 +274,39 @@ def mostrar_pantalla_finalizado():
         else:  # Linux and others
             os.system(f'xdg-open "{results_path}"')
         root_final.destroy()
-    label_desc = tk.Label(
-        root_final,
-        text="Ver análisis ",
-        font=tkfont.Font(family="Segoe UI", size=14),
-        fg="#545454", bg="#fafafa"
-    )
-    label_desc.place(relx=0.5, rely=0.51, anchor="e")
+    
+    # Link con mejor estilo y efectos hover
     label_link = tk.Label(
-        root_final,
-        text="click aquí",
+        link_frame,
+        text="haz click aquí",
         font=tkfont.Font(family="Segoe UI", size=14, underline=True),
-        fg="#545454", bg="#fafafa", cursor="hand2"
+        fg=COLOR_MENU_CURSOR_ENCIMA,
+        bg="#fafafa", 
+        cursor="hand2"
     )
-    label_link.place(relx=0.5, rely=0.51, anchor="w")
+    label_link.pack(side=tk.LEFT)
+    
+    # Eventos para efectos hover
+    label_link.bind("<Enter>", on_enter)
+    label_link.bind("<Leave>", on_leave)
     label_link.bind("<Button-1>", abrir_analisis)
+    
+    # Botón para cerrar
+    exit_button = tk.Button(
+        main_frame,
+        text="Cerrar",
+        font=tkfont.Font(family="Segoe UI", size=12),
+        fg="#545454",
+        bg="#f0f0f0",
+        relief="flat",
+        padx=30,
+        pady=10,
+        cursor="hand2",
+        command=root_final.destroy
+    )
+    exit_button.pack(pady=50)
+    
     root_final.mainloop()
 
 def track_images(image_paths, duration=8):
-    mostrar_pantalla_bienvenida()
-    cerrar_pantalla_bienvenida()
-    startCalibration()
-    for image_path in image_paths:
-        print("Procesando imagen:", image_path)
-        exit_flag = track_image(image_path, duration=duration)
-        if exit_flag:
-            break
-    cv2.destroyAllWindows()
-    mostrar_pantalla_finalizado()
+    mostrar_pantalla_bienvenida(image_paths, duration)
