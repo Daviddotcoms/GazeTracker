@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw
 import os
 from tkinter import filedialog, Canvas
 import tkinter as tk
-from config import  COLOR_BARRA_SUPERIOR, COLOR_TEXTO_BLANCO, COLOR_NARANJA, COLOR_BORDE, COLOR_BOTON_SECUNDARIO, COLOR_BOTON_SECUNDARIO_HOVER, COLOR_GRIS_MEDIO, COLOR_TEXTO, COLOR_TEXTO_SECUNDARIO, COLOR_VERDE_HOVER, COLOR_CUERPO_PRINCIPAL, COLOR_VERDE
+from config import  COLOR_BARRA_SUPERIOR, COLOR_TEXTO_BLANCO, COLOR_NARANJA_HOVER, COLOR_NARANJA, COLOR_BORDE, COLOR_BOTON_SECUNDARIO, COLOR_BOTON_SECUNDARIO_HOVER, COLOR_GRIS_MEDIO, COLOR_TEXTO, COLOR_TEXTO_SECUNDARIO, COLOR_VERDE_HOVER, COLOR_CUERPO_PRINCIPAL, COLOR_VERDE
 import threading
 from utils.image_utils import leer_imagen
 
@@ -427,9 +427,9 @@ class FormularioSecuencia():
                 frame_celda,
                 text="",
                 image=icono_x,
-                fg_color="#ff5555",
+                fg_color=COLOR_NARANJA,
                 text_color="white",
-                hover_color="#ff3333",
+                hover_color=COLOR_NARANJA_HOVER,
                 width=24,
                 height=24,
                 corner_radius=12,
@@ -461,7 +461,7 @@ class FormularioSecuencia():
                 font=("Segoe UI", 13),
                 fg_color=COLOR_NARANJA,
                 text_color=COLOR_TEXTO_BLANCO,
-                hover_color=COLOR_BOTON_SECUNDARIO_HOVER,
+                hover_color=COLOR_NARANJA_HOVER,
                 width=140,
                 height=36,
                 corner_radius=18,
